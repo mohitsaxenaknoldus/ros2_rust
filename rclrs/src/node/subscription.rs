@@ -5,14 +5,9 @@ use crate::{rcl_bindings::*, RclReturnCode};
 use alloc::boxed::Box;
 use alloc::sync::Arc;
 use core::borrow::Borrow;
-use core::marker::PhantomData;
 use cstr_core::CString;
 use rosidl_runtime_rs::{Message, RmwMessage};
 
-#[cfg(not(feature = "std"))]
-use spin::{Mutex, MutexGuard};
-
-#[cfg(feature = "std")]
 use parking_lot::{Mutex, MutexGuard};
 
 pub struct SubscriptionHandle {
@@ -52,7 +47,6 @@ where
     pub handle: Arc<SubscriptionHandle>,
     // The callback's lifetime should last as long as we need it to
     pub callback: Mutex<Box<dyn FnMut(T) + 'static>>,
-    message: PhantomData<T>,
 }
 
 impl<T> Subscription<T>
@@ -103,7 +97,6 @@ where
         Ok(Self {
             handle,
             callback: Mutex::new(Box::new(callback)),
-            message: PhantomData,
         })
     }
 
